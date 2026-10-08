@@ -84,7 +84,8 @@ def main():
                         output = tmp / "result.tsv"
                         # Mode comes from metadata; no query-side mode flag.
                         run("--query", "-l", index, "-q", query_file,
-                            "-o", output, "-P", threshold, "--format", fmt)
+                            "-o", output, "-P", threshold, "--format", fmt,
+                            "-t", 2)
                         with output.open() as stream:
                             rows = list(csv.reader(stream, delimiter="\t"))
                         assert rows[0] == ["query", "sample0", "sample1", "sample2"], rows[0]

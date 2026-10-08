@@ -60,7 +60,7 @@ test_query_in_a_dir:
 
 test_query_in_a_file:
 	@echo "$(YELLFG)Querying index output in outputfile $(NoColor)..................................................."
-	../Reindeer --query -l $(TESTDIR) -q $(QUERY).fa -o $(TESTDIR)/outputfile.tsv >> $(TESTDIR)/log 2>&1
+	../Reindeer --query -l $(TESTDIR) -q $(QUERY).fa -o $(TESTDIR)/outputfile.tsv -t 4 >> $(TESTDIR)/log 2>&1
 	@if diff $(TESTDIR)/outputfile.tsv query_resultsOK/out_query_Reindeer_P40_$(QUERY)_0.out > /dev/null ;\
 		then echo "    -> $(GREEN)Query test passed.$(NoColor)" ;\
 		else echo "    -> $(RED)Query test error.$(NoColor)"; touch $(TESTDIR)/error_query; exit 1; fi

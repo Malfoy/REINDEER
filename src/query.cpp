@@ -233,13 +233,11 @@ void Reindeer_Index<T>::doQuery(string& input, vector<vector<uint32_t>>& query_u
     vector<vector<uint32_t>> query_unitigID_tmp;
     // FOR EACH LINE OF THE QUERY FILE
     while (not query_file.eof()) {
+        // Read one immutable batch before workers start. Reading inside the
+        // parallel region replaced the shared batch while other threads used it.
+        lines = getLineFasta_buffer2(&query_file, 4000, k);
 #pragma omp parallel num_threads(threads)
         {
-#pragma omp critical(i_file)
-            {
-                //~ uint i(0);
-                lines = getLineFasta_buffer2(&query_file, 4000, k);
-            }
             uint i;
 #pragma omp for ordered
             for (i = (0); i < lines.size(); i += 2) {
