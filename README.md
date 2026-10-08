@@ -34,8 +34,8 @@ to name a few.
 # Installation
 
 ## Requirements
-* GCC >= 4.8
-* CMAKE >  3.10.0
+* GCC with C++17 support (tested with GCC 15.2 and 16.2)
+* CMAKE >  3.10.0 (tested with CMake 4.2.3 and 4.4.4)
 
 To install, first clone the project:
 
@@ -56,6 +56,11 @@ or
 Test can be run:
 
 `make test`
+
+The regression tests require Python 3. The build automatically applies the
+tracked GCC compatibility patch to the pinned BLight submodule.
+`install.sh` also patches the bundled BCALM/GATB dependencies and supports
+CMake 4. These patches correct the source without relaxing compiler errors.
 
 ### Compilation tips
 
@@ -121,6 +126,12 @@ In order to have k-mer presence/absence instead of abundance per indexed dataset
 
 `./Reindeer --query -l index_nocount -q test/query_test.fa --nocount`
 
+The query loads the storage mode from the index; `--nocount` is optional when
+querying a presence index. Results give the integer percentage of query k-mers
+present in each dataset, or `*` below the `-P` threshold (40% by default).
+For a sequence of length L, the denominator is L - k + 1. An entirely absent
+sequence has 0% coverage, including when L equals k.
+
 
 # Beta options
 
@@ -130,6 +141,19 @@ In order to have k-mer presence/absence instead of abundance per indexed dataset
 `./Reindeer --index --log-count -f fof_unitigs.txt`
 
 `./Reindeer --index --quantization -f test/fof_unitigs.txt`
+
+Log mode reports transformed counts, rather than converting them back to raw
+abundances. It follows the ceiling-log2 formula in section 5.5.2 of the
+[paper](https://doi.org/10.1093/bioinformatics/btaa487): e.g. 27 becomes 5,
+101 becomes 7, and 40812 becomes 16. The paper's Table 2 gives 4 for 27,
+which differs from its stated formula; this implementation follows the formula.
+Zero is reserved for absence, so positive counts at or below 1 are encoded as 1.
+All count modes recognize BCALM `km:f:`/`KM:f:` and Logan `ka:f:`/`KA:f:` tags,
+including tags at the end of a header.
+
+Rebuild existing log indexes to obtain the corrected transform: earlier versions
+stored floor-log2 counts and could encode count-one k-mers as zero. Existing
+presence indexes can be queried directly with the corrected program.
 
 
 ## input paired-end reads (to bcalm)
@@ -221,4 +245,3 @@ Minor
        with the converter without -f option.
        - If you don't insert the total k-mer per sample in this file, it will
          be not possible to use the format 'normalization'.
-

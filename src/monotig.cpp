@@ -81,18 +81,7 @@ uint8_t kmer_Set_Light::return_count_bin(uint16_t abundance)
 // parse bcalm
 uint16_t kmer_Set_Light::parseCoverage_bin(const string& str)
 {
-    size_t pos(str.find("km:f:"));
-    if (pos == string::npos) {
-        pos = (str.find("KM:f:"));
-    }
-    if (pos == string::npos) {
-        return 1;
-    }
-    uint i(1);
-    while (str[i + pos + 5] != ' ') {
-        ++i;
-    }
-    return return_count_bin((uint16_t)stof(str.substr(pos + 5, i)));
+    return return_count_bin(static_cast<uint16_t>(min(parse_unitig_abundance(str), 65535.0)));
 }
 
 // tests if 2 vectors have the same null positions
@@ -482,13 +471,19 @@ uint16_t kmer_Set_Light::parseCoverage(const string& str)
     if (color_mode == 0) {
         return parseCoverage_bool(str);
     }
+    const double abundance = parse_unitig_abundance(str);
     if (color_mode == 1) {
-        return parseCoverage_exact(str);
+        return static_cast<uint16_t>(min(abundance, 65535.0));
     }
     if (color_mode == 2) {
         return parseCoverage_bin(str);
     }
-    return parseCoverage_log2(str);
+    if (abundance == 0) {
+        return 0;
+    }
+    // Ceiling-log2 as defined in section 5.5.2; keep positives nonzero
+    // so a singleton cannot be confused with an absent k-mer.
+    return static_cast<uint16_t>(max(1.0, ceil(log2(abundance))));
 }
 
 // hashes the kmers from all the input files in super bucket files
