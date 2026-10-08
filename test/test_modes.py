@@ -80,7 +80,7 @@ def main():
                 run("--index", "-f", fof, "-o", index, "-t", 2, *flags,
                     *(["--mem-query"] if memory else []))
                 for threshold in [0, 40, 50, 51, 100]:
-                    for fmt in (["raw"] if mode == "presence" else ["raw", "sum", "average", "mean"]):
+                    for fmt in ["raw", "sum", "average", "mean"]:
                         output = tmp / "result.tsv"
                         # Mode comes from metadata; no query-side mode flag.
                         run("--query", "-l", index, "-q", query_file,
@@ -97,8 +97,6 @@ def main():
                                 coverage = sum(value > 0 for value in values) * 100 // len(values)
                                 if coverage < threshold:
                                     expected = "*"
-                                elif mode == "presence":
-                                    expected = str(coverage)
                                 elif fmt == "raw":
                                     expected = raw(values)
                                 elif fmt == "sum":

@@ -198,11 +198,7 @@ void Reindeer_Index<T>::write_results_above_threshold(string& toWrite, vector<st
     toWrite += header.substr(1,50) ; // remove the '>' of fasta format for query sequence
     for (uint cp(0); cp < covered_positions.size(); ++cp) {
         if (covered_positions[cp] >= threshold) {
-            if (record_counts) {
-                toWrite += "\t" + color_counts[cp];
-            } else {
-                toWrite += "\t" + to_string(covered_positions[cp]);
-            }
+            toWrite += "\t" + color_counts[cp];
         } else {
             toWrite += "\t*";
         }

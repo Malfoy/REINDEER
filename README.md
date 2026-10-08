@@ -127,10 +127,14 @@ In order to have k-mer presence/absence instead of abundance per indexed dataset
 `./Reindeer --query -l index_nocount -q test/query_test.fa --nocount`
 
 The query loads the storage mode from the index; `--nocount` is optional when
-querying a presence index. Results give the integer percentage of query k-mers
-present in each dataset, or `*` below the `-P` threshold (40% by default).
-For a sequence of length L, the denominator is L - k + 1. An entirely absent
-sequence has 0% coverage, including when L equals k.
+querying a presence index. Raw results use the same k-mer coordinate runs as
+abundance results, with `1` for a present k-mer and `*` for an absent k-mer.
+For example, `0-9:1,10-19:*` reports ten present followed by ten absent k-mers.
+Datasets below the `-P` coverage threshold (40% by default) still return `*`
+for the whole query. Coverage uses L - k + 1 k-mers for a sequence of length L;
+it filters the output but is not itself reported as the result.
+`--format sum` counts present k-mer positions, and `average`/`mean` reports
+their fraction. Existing presence indexes do not need rebuilding.
 
 
 # Beta options
